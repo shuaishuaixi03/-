@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TelephoneBilling.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">code</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">TelephoneBilling.java</span></div><h1>TelephoneBilling.java</h1><pre class="source lang-java linenums">import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+
+<span class="nc" id="L7">public class TelephoneBilling {</span>
+
+    public static double calculateCallCost(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+<span class="fc" id="L10">        double callCost = 0.0;</span>
+
+        // 璁＄畻閫氳瘽鏃堕暱锛堝垎閽燂級锛屽悜涓婅繘浣嶅埌鏈�杩戠殑涓�鍒嗛挓
+<span class="fc" id="L13">        long durationInMinutes = ChronoUnit.MINUTES.between(startDateTime, endDateTime) + 1;</span>
+
+        // 璁＄畻璧峰鏃ユ湡鍜岀粨鏉熸棩鏈熶箣闂寸殑灏忔椂鏁�
+<span class="fc" id="L16">        long hoursBetween = ChronoUnit.HOURS.between(startDateTime, endDateTime);</span>
+
+        // 妫�鏌ラ�氳瘽鏄惁璺ㄨ秺浜嗘槬瀛ｆ垨绉嬪鐨勫浠ゆ椂鍙樻洿
+<span class="pc bpc" id="L19" title="2 of 4 branches missed.">        if (isDuringDaylightSavingTimeChange(startDateTime) || isDuringDaylightSavingTimeChange(endDateTime)) {</span>
+            // 瀵逛簬鏄ュ鍙樻洿锛屽皢閫氳瘽鏃堕暱鍑忓皯1灏忔椂锛涘浜庣瀛ｅ彉鏇达紝灏嗛�氳瘽鏃堕暱澧炲姞1灏忔椂
+<span class="nc bnc" id="L21" title="All 2 branches missed.">            durationInMinutes += (isDuringDaylightSavingTimeChange(startDateTime) ? -60 : 60);</span>
+        }
+
+        // 鏍规嵁閫氳瘽鏃堕暱璁＄畻閫氳瘽璐圭敤
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        if (durationInMinutes &lt;= 20) {</span>
+<span class="nc" id="L26">            callCost = durationInMinutes * 0.05;</span>
+        } else {
+<span class="fc" id="L28">            callCost = 1.0 + (durationInMinutes - 20) * 0.1;</span>
+        }
+
+        // 濡傛灉閫氳瘽鏃堕暱涓嶈冻1鍒嗛挓锛屾寜鐓�1鍒嗛挓璁＄畻
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">        if (durationInMinutes &lt; 1) {</span>
+<span class="nc" id="L33">            callCost = 0.05;</span>
+        }
+<span class="fc" id="L35">        return Double.parseDouble(String.format(&quot;%.2f&quot;, callCost));</span>
+    }
+
+    // 杈呭姪鏂规硶锛岀敤浜庢鏌ョ粰瀹氱殑鏃ユ湡鍜屾椂闂存槸鍚﹀浜庡浠ゆ椂鍙樻洿鏈熼棿
+    private static boolean isDuringDaylightSavingTimeChange(LocalDateTime dateTime) {
+<span class="fc" id="L40">        Month month = dateTime.getMonth();</span>
+<span class="fc" id="L41">        int dayOfMonth = dateTime.getDayOfMonth();</span>
+<span class="fc" id="L42">        int year = dateTime.getYear();</span>
+
+<span class="pc bpc" id="L44" title="2 of 8 branches missed.">        if ((month == Month.MARCH &amp;&amp; dayOfMonth &gt; 7) || (month == Month.NOVEMBER &amp;&amp; dayOfMonth &lt; 7)) {</span>
+            // 瓒呰繃3鏈堢殑绗簩涓槦鏈熸棩鎴栬��11鏈堢殑绗竴涓槦鏈熸棩涔嬪悗
+<span class="fc" id="L46">            return false;</span>
+        }
+
+<span class="fc" id="L49">        LocalDateTime nextSunday = LocalDateTime.of(year, month, 1, 2, 0).with(TemporalAdjusters.next(DayOfWeek.SUNDAY));</span>
+<span class="pc bpc" id="L50" title="4 of 6 branches missed.">        if ((month == Month.MARCH &amp;&amp; dayOfMonth &gt;= nextSunday.getDayOfMonth())</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                || (month == Month.NOVEMBER &amp;&amp; dayOfMonth &lt; nextSunday.getDayOfMonth())) {</span>
+            // 鍦ㄦ垨涔嬪悗3鏈堢殑涓嬩竴涓槦鏈熸棩鎴栬�呭湪11鏈堢殑涓嬩竴涓槦鏈熸棩涔嬪墠
+<span class="nc" id="L53">            return true;</span>
+        }
+
+<span class="fc" id="L56">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
